@@ -2,18 +2,9 @@ clc
 clear all
 close all
 
-%% Part 2
-% quad = Quad();
-% [xs,us] = quad.trim(); % Compute steady-state for which 0 = f(xs,us)
-% sys = quad.linearize(xs, us); % Linearize the nonlinear model
-% sys_transformed = sys * inv(quad.T); % New system is A * x + B * inv(T) * v
-% [sys_x, sys_y, sys_z, sys_yaw] = quad.decompose(sys, xs, us);
-
-%% Part 3
-% discrete_system = c2d(sys, 1/5);
 x = [0; 0; 0; 2];
-y = [0; 0; 0; 2];
-z = [0; -2];
+y = [0; 0; 0; 0];
+z = [0; 0];
 yaw = [0; 0];
 
 Ts = 1/5;
@@ -34,5 +25,19 @@ uy = mpc_y.get_u(y);
 uz = mpc_z.get_u(z);
 uyaw = mpc_yaw.get_u(yaw);
 
-sim = quad.sim(mpc_x, mpc_y, mpc_z, mpc_yaw);
-quad.plot(sim);
+% SIMULATION
+x0 = zeros(4,1);
+x0(4) = 2;
+Tf = 10;
+[x,t_x,x_x] = simulate_closed_loop(sys_x, mpc_x, x0', Tf, Ts, 10);
+
+%PLOT
+figure
+hold on
+line([t_x(1) t_x(end)], [0,0], 'Color', 'Black')
+p = plot(t_x, x_x(3:4,:));
+grid on
+title('Position and Velocity')
+xlabel('Time[s]')
+ylabel('Pos[m] / vel[m/s]')
+legend(p,'Vel', 'pos')

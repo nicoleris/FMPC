@@ -66,12 +66,24 @@ classdef MPC_Control_y < MPC_Control
       end
       
       con = con + (Ff*x(:,N) <= ff);
-      obj = obj + x(:,N)'*Qf*x(:,N);
+      obj = obj + x(:,N)'*Qf*x(:,N); 
       
+      %PLOT
       figure;
+      
+      subplot(3, 1, 1);
       Yf.projection(1:2).plot();
+      title('Dimensions 1 and 2');
+      
+      subplot(3, 1, 2);
       Yf.projection(2:3).plot();
+      title('Dimensions 2 and 3');
+      
+      subplot(3, 1, 3);
       Yf.projection(3:4).plot();
+      title('Dimensions 3 and 4');
+      
+      sgtitle('Terminal invariant set for y');
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

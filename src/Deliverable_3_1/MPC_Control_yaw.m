@@ -65,11 +65,10 @@ classdef MPC_Control_yaw < MPC_Control
       
       obj = obj + x(:,N)'*Qf*x(:,N);
       
+      %PLOT
       figure;
       Gf.projection(1:2).plot();
-%       Gf.projection(2:3).plot();
-%       Gf.projection(3:4).plot();
-
+      title('Terminal invariant set for yaw');
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

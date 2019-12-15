@@ -67,10 +67,22 @@ classdef MPC_Control_x < MPC_Control
       con = con + (Ff*x(:,N) <= ff);
       obj = obj + x(:,N)'*Qf*x(:,N);
       
+      %PLOT
       figure;
+      
+      subplot(3, 1, 1);
       Xf.projection(1:2).plot();
+      title('Dimensions 1 and 2');
+      
+      subplot(3, 1, 2);
       Xf.projection(2:3).plot();
+      title('Dimensions 2 and 3');
+      
+      subplot(3, 1, 3);
       Xf.projection(3:4).plot();
+      title('Dimensions 3 and 4');
+      
+      sgtitle('Terminal invariant set for x');
       
 
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
