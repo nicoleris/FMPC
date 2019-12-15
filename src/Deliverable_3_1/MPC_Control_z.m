@@ -1,6 +1,16 @@
-classdef MPC_Control_x < MPC_Control
+classdef MPC_Control_z < MPC_Control
+  properties
+    A_bar, B_bar, C_bar % Augmented system for disturbance rejection    
+    L                   % Estimator gain for disturbance rejection
+  end
   
   methods
+    function mpc = MPC_Control_z(sys, Ts)
+      mpc = mpc@MPC_Control(sys, Ts);
+      
+      [mpc.A_bar, mpc.B_bar, mpc.C_bar, mpc.L] = mpc.setup_estimator();
+    end
+    
     % Design a YALMIP optimizer object that takes a steady-state state
     % and input (xs, us) and returns a control input
     function ctrl_opt = setup_controller(mpc)
@@ -8,6 +18,7 @@ classdef MPC_Control_x < MPC_Control
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % INPUTS
       %   x(:,1) - initial state (estimate)
+      %   d_est  - disturbance estimate
       %   xs, us - steady-state target
       % OUTPUTS
       %   u(:,1) - input to apply to the system
@@ -15,12 +26,15 @@ classdef MPC_Control_x < MPC_Control
 
       [n,m] = size(mpc.B);
       
-      % Steady-state targets (Ignore this before Todo 3.2)
+      % Steady-state targets (Ignore this before Todo 3.3)
       xs = sdpvar(n, 1);
       us = sdpvar(m, 1);
       
+      % Disturbance estimate (Ignore this before Part 5)
+      d_est = sdpvar(1);
+
       % SET THE HORIZON HERE
-      N = 300;
+      N = 40;
       
       % Predicted state and input trajectories
       x = sdpvar(n, N);
@@ -32,61 +46,62 @@ classdef MPC_Control_x < MPC_Control
 
       % NOTE: The matrices mpc.A, mpc.B, mpc.C and mpc.D are 
       %       the DISCRETE-TIME MODEL of your system
-      
-      beta_max = 0.035;
-      Mb_max = 0.3;
-      F = [1; -1]; f = [beta_max; beta_max];
-      M = [1; -1]; m = [Mb_max; Mb_max];
+
+      M_max = 0.3;
+      M_min = -0.2;
+      M = [1; -1]; m = [M_max; abs(M_min)];
       
       R = 1;
       Q = 10*eye(n);
       
       syst = LTISystem('A', mpc.A, 'B', mpc.B);
-      syst.x.max = [inf; beta_max; inf; inf];
-      syst.x.min = [-inf; -beta_max; -inf; -inf];
+      syst.x.max = [inf; inf];
+      syst.x.min = [-inf; -inf];
       syst.x.penalty = QuadFunction(Q);
       syst.u.penalty = QuadFunction(R);
       Qf = syst.LQRPenalty.weight;
-      Xf = syst.LQRSet;
-      Ff = Xf.A;
-      ff = Xf.b;
+      Zf = syst.LQRSet;
+      Mf = Zf.A;
+      mf = Zf.b;
       
       % WRITE THE CONSTRAINTS AND OBJECTIVE HERE
       con = [];
       obj = 0;
+      
       con = con + (x(:,2) == mpc.A*x(:,1) + mpc.B*u(:,1));
-      con = con + (M*u(1, 1) <= m)
-      obj = obj + x(:, i)'*Q*x(:, i) + u(:, i)'*R*u(:, i);
+      con = con + (M*u(1, 1) <= m);
+      obj = obj + x(:, 1)'*Q*x(:, 1) + u(:, 1)'*R*u(:, 1);
       
       for i = 2:N-1
           con = con + (x(:, i+1) == mpc.A*x(:, i) + mpc.B*u(:, i));
-          con = con + (F*x(2, i) <= f) + (M*u(1, i) <= m);
+          con = con + (M*u(:, i) <= m);
           obj = obj + x(:, i)'*Q*x(:, i) + u(:, i)'*R*u(:, i);
       end
       
-      con = con + (Ff*x(:,N) <= ff);
       obj = obj + x(:,N)'*Qf*x(:,N);
       
-      Xf.projection(1:2).plot();
-      Xf.projection(2:3).plot();
-      Xf.projection(3:4).plot();
+      figure;
+      Zf.projection(1:2).plot();
+%       Zf.projection(2:3).plot();
+%       Zf.projection(3:4).plot();
 
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
       
       ctrl_opt = optimizer(con, obj, sdpsettings('solver','gurobi'), ...
-      {x(:,1), xs, us}, u(:,1));
+        {x(:,1), xs, us, d_est}, u(:,1));
     end
     
     
     % Design a YALMIP optimizer object that takes a position reference
     % and returns a feasible steady-state state and input (xs, us)
     function target_opt = setup_steady_state_target(mpc)
-
+      
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % INPUTS
       %   ref    - reference to track
+      %   d_est  - disturbance estimate
       % OUTPUTS
       %   xs, us - steady-state target
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -96,22 +111,52 @@ classdef MPC_Control_x < MPC_Control
       xs = sdpvar(n, 1);
       us = sdpvar;
       
-      % Reference position (Ignore this before Todo 3.2)
-      ref = sdpvar;            
+      % Reference position (Ignore this before Todo 3.3)
+      ref = sdpvar;
             
+      % Disturbance estimate (Ignore this before Part 5)
+      d_est = sdpvar(1);
+      
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
-      con = [];
-      obj = 0;
+      u_min = -0.2; u_max = 0.3;
+      
+      con = [u_min <= us <= u_max, xs == mpc.A*xs + mpc.B*us, ref == mpc.C*xs];
+      obj = us^2;
       
       
+
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
-      % Compute the steady-state target
-      target_opt = optimizer(con, obj, sdpsettings('solver', 'gurobi'), ref, {xs, us});
       
+      % Compute the steady-state target
+      target_opt = optimizer(con, obj, sdpsettings('solver', 'gurobi'), {ref, d_est}, {xs, us});
     end
+    
+    
+    % Compute augmented system and estimator gain for input disturbance rejection
+    function [A_bar, B_bar, C_bar, L] = setup_estimator(mpc)
+      
+      %%% Design the matrices A_bar, B_bar, L, and C_bar
+      %%% so that the estimate x_bar_next [ x_hat; disturbance_hat ]
+      %%% converges to the correct state and constant input disturbance
+      %%%   x_bar_next = A_bar * x_bar + B_bar * u + L * (C_bar * x_bar - y);
+      
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
+      % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
+      
+      A_bar = [];
+      B_bar = [];
+      C_bar = [];
+      L = [];
+      
+      % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    end
+
+    
   end
 end
