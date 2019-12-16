@@ -64,12 +64,7 @@ classdef MPC_Control_yaw < MPC_Control
       end
       
       obj = obj + x(:,N)'*Qf*x(:,N);
-      
-      figure;
-      Gf.projection(1:2).plot();
-%       Gf.projection(2:3).plot();
-%       Gf.projection(3:4).plot();
-
+     
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

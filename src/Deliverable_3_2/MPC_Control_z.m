@@ -80,10 +80,6 @@ classdef MPC_Control_z < MPC_Control
       
       obj = obj + x(:,N)'*Qf*x(:,N);
       
-      figure;
-      Zf.projection(1:2).plot();
-%       Zf.projection(2:3).plot();
-%       Zf.projection(3:4).plot();
 
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

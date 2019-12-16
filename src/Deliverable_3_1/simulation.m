@@ -39,7 +39,7 @@ if N == 2
     legend(legend1, legend2, 'interpreter','latex');
     xlabel('time [s]');
     ylabel(strcat(data1, " / ", data2), 'interpreter','latex');
-    title('speed and position vs time');
+    title('Velocity and position vs time');
       
 elseif N == 4
     if sys.StateName{1} == "vel_pitch"
@@ -83,7 +83,7 @@ elseif N == 4
     legend(legend1, legend2, 'interpreter','latex');
     xlabel('time [s]');
     ylabel(strcat(data1, " / ", data2), 'interpreter','latex');
-    title('Angular speed and position vs time');
+    title('Angular velocity and position vs time');
 
     subplot(2, 1, 2);
     plot(t, x(3, :));
@@ -92,9 +92,9 @@ elseif N == 4
     legend(legend3, legend4, 'interpreter','latex');
     xlabel('time [s]');
     ylabel(strcat(data3, " / ", data4), 'interpreter','latex');
-    title('Axial speed and position vs time');
+    title('Axial velocity and position vs time');
 
-    sgtitle('Position and velocity vs time');
+    sgtitle('Velocity and position vs time');
 end
 end
 
