@@ -83,6 +83,8 @@ classdef MPC_Control_z < MPC_Control
       %PLOT
       figure;
       Zf.projection(1:2).plot();
+      xlabel('$\dot{z}$ [m/s]','interpreter','latex')
+      ylabel('$z$ [m]','interpreter','latex');
       title('Terminal invariant set for z');
 
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 

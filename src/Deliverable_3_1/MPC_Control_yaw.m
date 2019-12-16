@@ -68,6 +68,8 @@ classdef MPC_Control_yaw < MPC_Control
       %PLOT
       figure;
       Gf.projection(1:2).plot();
+      xlabel('$\dot{\gamma}$ [m/s]','interpreter','latex')
+      ylabel('$\gamma$ [m]','interpreter','latex');
       title('Terminal invariant set for yaw');
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 

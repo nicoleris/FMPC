@@ -73,14 +73,20 @@ classdef MPC_Control_y < MPC_Control
       
       subplot(3, 1, 1);
       Yf.projection(1:2).plot();
+      xlabel('$\dot{\beta}$ [rad/s]','interpreter','latex')
+      ylabel('$\beta$ [rad]','interpreter','latex');
       title('Dimensions 1 and 2');
       
       subplot(3, 1, 2);
       Yf.projection(2:3).plot();
+      xlabel('$\beta$ [rad]','interpreter','latex')
+      ylabel('$\dot{y}$ [m/s]','interpreter','latex');
       title('Dimensions 2 and 3');
       
       subplot(3, 1, 3);
       Yf.projection(3:4).plot();
+      xlabel('$\dot{y}$ [m/s]','interpreter','latex')
+      ylabel('$y$ [m]','interpreter','latex');
       title('Dimensions 3 and 4');
       
       sgtitle('Terminal invariant set for y');
