@@ -19,8 +19,10 @@ classdef MPC_Control_x < MPC_Control
       xs = sdpvar(n, 1);
       us = sdpvar(m, 1);
       
+%       [xs,us] = mpc.target_op([ref]);
+      
       % SET THE HORIZON HERE
-      N = 40;
+      N = 300;
       
       % Predicted state and input trajectories
       x = sdpvar(n, N);
@@ -95,7 +97,7 @@ classdef MPC_Control_x < MPC_Control
       us = sdpvar;
       
       % Reference position (Ignore this before Todo 3.2)
-      ref = sdpvar;            
+      ref = sdpvar(1,1);            
             
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
