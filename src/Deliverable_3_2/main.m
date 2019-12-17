@@ -26,10 +26,10 @@ z_ref = 1;
 yaw_ref = pi/4;
 
 % Get control inputs with
-ux = mpc_x.get_u(x, x_ref);
-uy = mpc_y.get_u(y, y_ref);
-uyaw = mpc_yaw.get_u(yaw, yaw_ref);
-uz = mpc_z.get_u(z, z_ref);
+% ux = mpc_x.get_u(x, x_ref);
+% uy = mpc_y.get_u(y, y_ref);
+% uyaw = mpc_yaw.get_u(yaw, yaw_ref);
+% uz = mpc_z.get_u(z, z_ref);
 
 Tf = 40;
 sim_x = simulation(Tf, Ts, sys_x, mpc_x, x, x_ref);

@@ -23,9 +23,11 @@ if N == 2
     if sys.StateName{1} == "vel_z"
         legend1 = "$\dot{z}$";
         data1 = "z velocity [m/s]";
+        system = "$mpc_z$";
     else
         legend1 = "$\dot{\gamma}$";
         data1 = "yaw velocity [rad/s]";
+        system = "$mpc_\gamma$";
     end
     
     if sys.StateName{2} == "z"
@@ -43,15 +45,17 @@ if N == 2
     legend(legend1, legend2, 'interpreter','latex');
     xlabel('time [s]');
     ylabel(strcat(data1, " / ", data2), 'interpreter','latex');
-    title('Velocity and position vs time');
+    title(strcat("Velocity and position vs time for ", system), 'interpreter','latex');
       
 elseif N == 4
     if sys.StateName{1} == "vel_pitch"
         legend1 = "$\dot{\alpha}$";
         data1 = "pitch velocity [rad/s]";
+        system = "$mpc_x$";
     else
         legend1 = "$\dot{\beta}$";
         data1 = "roll velocity [rad/s]";
+        system = "$mpc_y$";
     end
     
     if sys.StateName{2} == "pitch"
@@ -98,7 +102,7 @@ elseif N == 4
     ylabel(strcat(data3, " / ", data4), 'interpreter','latex');
     title('Axial velocity and position vs time');
 
-    sgtitle('Velocity and position vs time');
+    sgtitle(strcat("Velocity and position vs time for ", system), 'interpreter','latex');
 end
 end
 
