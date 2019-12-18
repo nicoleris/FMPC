@@ -54,15 +54,14 @@ classdef MPC_Control_y < MPC_Control
       % WRITE THE CONSTRAINTS AND OBJECTIVE HERE
       con = [];
       obj = 0;
-      
-      
-      con = con + (x(:,2) == mpc.A*(x(:,1) - xs) + mpc.B*(u(:,1) - us));
-      con = con + (M*(u(1, 1) - us) <= m);
+
+      con = con + (x(:,2) == mpc.A*x(:,1) + mpc.B*u(:,1));
+      con = con + (M*u(1, 1) <= m);
       obj = obj + (x(:, 1) - xs)'*Q*(x(:, 1) - xs) + (u(:,1) - us)'*R*(u(:,1) - us);
       
       for i = 2:N-1
-          con = con + (x(:, i+1) == mpc.A*(x(:, i) - xs) + mpc.B*(u(:, i) - us));
-          con = con + (F*(x(2, i) - xs(2, 1)) <= f) + (M*(u(1, i) - us) <= m);
+          con = con + (x(:, i+1) == mpc.A*x(:, i) + mpc.B*u(:, i));
+          con = con + (F*x(2, i) <= f) + (M*u(1, i) <= m);
           obj = obj + (x(:, i) - xs)'*Q*(x(:, i) - xs) + (u(:, i) - us)'*R*(u(:, i) - us);
       end
 %       
@@ -102,8 +101,12 @@ classdef MPC_Control_y < MPC_Control
       % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
       u_limit = 0.3;
       
+      Qs = 1;
+      R = 1;
+      
       con = [-u_limit <= us <= u_limit, xs == mpc.A*xs + mpc.B*us, ref == mpc.C*xs];
       obj = us^2;
+%       obj = (mpc.C*xs - ref)' * Qs * (mpc.C*xs - ref) + us'*R*us;
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

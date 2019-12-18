@@ -20,10 +20,10 @@ y = [0; 0; 0; 0];
 z = [0; 0];
 yaw = [0; 0];
 
-x_ref = 1;
-y_ref = 1;
-z_ref = 1;
-yaw_ref = pi/4;
+x_ref = 5;
+y_ref = -1;
+z_ref = -1;
+yaw_ref = -pi/4;
 
 % Get control inputs with
 % ux = mpc_x.get_u(x, x_ref);
