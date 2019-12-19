@@ -47,7 +47,6 @@ classdef MPC_Control_z < MPC_Control
       % NOTE: The matrices mpc.A, mpc.B, mpc.C and mpc.D are 
       %       the DISCRETE-TIME MODEL of your system
       
-      x_bar = [x;d_est
 
       M_max = 0.3;
       M_min = -0.2;
@@ -154,7 +153,7 @@ classdef MPC_Control_z < MPC_Control
           zeros(1,nx),1];
       B_bar = [mpc.B; zeros(1,nu)];
       C_bar = [mpc.C, zeros(ny,1)];
-      L = eye(size(mpc.C,1));
+      L = -place(A_bar',C_bar',[0.5,0.6,0.7])';
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

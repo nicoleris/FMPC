@@ -32,11 +32,11 @@ yaw_ref = -pi/4;
 % uz = mpc_z.get_u(z, z_ref);
 
 Tf = 40;
-sim_x = simulation(Tf, Ts, sys_x, mpc_x, x, x_ref);
-sim_y = simulation(Tf, Ts, sys_y, mpc_y, y, y_ref);
-sim_z = simulation(Tf, Ts, sys_z, mpc_z, z, z_ref);
-sim_yaw = simulation(Tf, Ts, sys_yaw, mpc_yaw, yaw, yaw_ref);
+% sim_x = simulation(Tf, Ts, sys_x, mpc_x, x, x_ref);
+% sim_y = simulation(Tf, Ts, sys_y, mpc_y, y, y_ref);
+% sim_z = simulation(Tf, Ts, sys_z, mpc_z, z, z_ref);
+% sim_yaw = simulation(Tf, Ts, sys_yaw, mpc_yaw, yaw, yaw_ref);
 
 %%
-sim = quad.sim(mpc_x, mpc_y, mpc_z, mpc_yaw,-2);
+sim = quad.sim(mpc_x, mpc_y, mpc_z, mpc_yaw,5);
 quad.plot(sim);
