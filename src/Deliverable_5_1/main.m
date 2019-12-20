@@ -38,5 +38,5 @@ Tf = 40;
 % sim_yaw = simulation(Tf, Ts, sys_yaw, mpc_yaw, yaw, yaw_ref);
 
 %%
-sim = quad.sim(mpc_x, mpc_y, mpc_z, mpc_yaw,5);
+sim = quad.sim(mpc_x, mpc_y, mpc_z, mpc_yaw,0.05);
 quad.plot(sim);
