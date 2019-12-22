@@ -34,7 +34,7 @@ classdef MPC_Control_z < MPC_Control
       d_est = sdpvar(1);
 
       % SET THE HORIZON HERE
-      N = 100;
+      N = 20;
       
       % Predicted state and input trajectories
       x = sdpvar(n, N);
@@ -47,40 +47,28 @@ classdef MPC_Control_z < MPC_Control
       % NOTE: The matrices mpc.A, mpc.B, mpc.C and mpc.D are 
       %       the DISCRETE-TIME MODEL of your system
       
-
+      %CONSTRAINTS PARAMETERS
       M_max = 0.3;
       M_min = -0.2;
       M = [1; -1]; m = [M_max; abs(M_min)];
       
       R = 1;
-      Q = 10*eye(n);
+      Q = diag([10,20]);
       
-      syst = LTISystem('A', mpc.A, 'B', mpc.B);
-      syst.x.max = [inf; inf];
-      syst.x.min = [-inf; -inf];
-      syst.x.penalty = QuadFunction(Q);
-      syst.u.penalty = QuadFunction(R);
-      Qf = syst.LQRPenalty.weight;
-      Zf = syst.LQRSet;
-      Mf = Zf.A;
-      mf = Zf.b;
       
-      % WRITE THE CONSTRAINTS AND OBJECTIVE HERE
+      %CONSTRAINTS AND OBJECTIVE
       con = [];
       obj = 0;
 
-      con = con + (x(:,2) == mpc.A*x(:,1) + mpc.B*u(:,1));
+      con = con + (x(:,2) == mpc.A*x(:,1) + mpc.B*u(:,1) + mpc.B*d_est);
       con = con + (M*u(1, 1) <= m);
       obj = obj + (x(:, 1) - xs)'*Q*(x(:, 1) - xs) + (u(:,1) - us)'*R*(u(:,1) - us);
       
       for i = 2:N-1
-          con = con + (x(:, i+1) == mpc.A*x(:, i) + mpc.B*u(:, i));
+          con = con + (x(:, i+1) == mpc.A*x(:, i) + mpc.B*u(:, i) + mpc.B*d_est);
           con = con + (M*u(1, i) <= m);
           obj = obj + (x(:, i) - xs)'*Q*(x(:, i) - xs) + (u(:, i) - us)'*R*(u(:, i) - us);
       end
-      
-%       obj = obj + x(:,N)'*Qf*x(:,N);
-      
 
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -117,13 +105,12 @@ classdef MPC_Control_z < MPC_Control
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
+      
       u_min = -0.2; u_max = 0.3;
       
       con = [u_min <= us <= u_max, xs == mpc.A*xs + mpc.B*us, ref == mpc.C*xs + d_est];
       obj = us^2;
       
-      
-
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
@@ -149,11 +136,10 @@ classdef MPC_Control_z < MPC_Control
       nu = size(mpc.B,2);
       ny = size(mpc.C,1);
       
-      A_bar = [mpc.A, mpc.B;
-          zeros(1,nx),1];
+      A_bar = [mpc.A, mpc.B; zeros(1,nx), 1];
       B_bar = [mpc.B; zeros(1,nu)];
       C_bar = [mpc.C, ones(ny,1)];
-      L = -place(A_bar',C_bar',[0.1,0.2,0.15])';
+      L = -place(A_bar', C_bar', [0.1, 0.3, 0.2])';
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
