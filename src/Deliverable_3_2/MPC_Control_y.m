@@ -20,7 +20,7 @@ classdef MPC_Control_y < MPC_Control
       us = sdpvar(m, 1);
       
       % SET THE HORIZON HERE
-      N = 300;
+      N = 20;
       
       % Predicted state and input trajectories
       x = sdpvar(n, N);
@@ -33,25 +33,17 @@ classdef MPC_Control_y < MPC_Control
       % NOTE: The matrices mpc.A, mpc.B, mpc.C and mpc.D are 
       %       the DISCRETE-TIME MODEL of your system
 
+      %CONSTRAINTS PARAMETERS
       alpha_max = 0.035;
       Ma_max = 0.3;
       F = [1; -1]; f = [alpha_max; alpha_max];
       M = [1; -1]; m = [Ma_max; Ma_max];
       
-      R = 1;
-      Q = 1*eye(n);
+      R = 15;
+      Q = diag([10,10,10,10]);
       
-      syst = LTISystem('A', mpc.A, 'B', mpc.B);
-      syst.x.max = [inf; alpha_max; inf; inf];
-      syst.x.min = [-inf; -alpha_max; -inf; -inf];
-      syst.x.penalty = QuadFunction(Q);
-      syst.u.penalty = QuadFunction(R);
-      Qf = syst.LQRPenalty.weight;
-      Yf = syst.LQRSet;
-      Ff = Yf.A;
-      ff = Yf.b;
       
-      % WRITE THE CONSTRAINTS AND OBJECTIVE HERE
+      %CONSTRAINTS AND OBJECTIVE
       con = [];
       obj = 0;
 
@@ -64,10 +56,7 @@ classdef MPC_Control_y < MPC_Control
           con = con + (F*x(2, i) <= f) + (M*u(1, i) <= m);
           obj = obj + (x(:, i) - xs)'*Q*(x(:, i) - xs) + (u(:, i) - us)'*R*(u(:, i) - us);
       end
-%       
-%       con = con + (Ff*x(:,N) <= ff);
-%       obj = obj + x(:,N)'*Qf*x(:,N);
-%       
+
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
@@ -99,14 +88,11 @@ classdef MPC_Control_y < MPC_Control
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
+      
       u_limit = 0.3;
-      
-      Qs = 1;
-      R = 1;
-      
+            
       con = [-u_limit <= us <= u_limit, xs == mpc.A*xs + mpc.B*us, ref == mpc.C*xs];
       obj = us^2;
-%       obj = (mpc.C*xs - ref)' * Qs * (mpc.C*xs - ref) + us'*R*us;
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

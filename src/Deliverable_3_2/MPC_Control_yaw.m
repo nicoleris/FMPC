@@ -20,7 +20,7 @@ classdef MPC_Control_yaw < MPC_Control
       us = sdpvar(m, 1);
       
       % SET THE HORIZON HERE
-      N = 40;
+      N = 20;
       
       % Predicted state and input trajectories
       x = sdpvar(n, N);
@@ -33,23 +33,15 @@ classdef MPC_Control_yaw < MPC_Control
       % NOTE: The matrices mpc.A, mpc.B, mpc.C and mpc.D are 
       %       the DISCRETE-TIME MODEL of your system
 
+      %CONSTRAINTS PARAMETERS
       My_max = 0.2;
       M = [1; -1]; m = [My_max; My_max];
       
       R = 1;
-      Q = 10*eye(n);
+      Q = diag([10,20]);
       
-      syst = LTISystem('A', mpc.A, 'B', mpc.B);
-      syst.x.max = [inf; inf];
-      syst.x.min = [-inf; -inf];
-      syst.x.penalty = QuadFunction(Q);
-      syst.u.penalty = QuadFunction(R);
-      Qf = syst.LQRPenalty.weight;
-      Gf = syst.LQRSet;
-      Mf = Gf.A;
-      mf = Gf.b;
-      
-      % WRITE THE CONSTRAINTS AND OBJECTIVE HERE
+
+      %CONSTRAINTS AND OBJECTIVE
       con = [];
       obj = 0;
 
@@ -63,8 +55,6 @@ classdef MPC_Control_yaw < MPC_Control
           obj = obj + (x(:, i) - xs)'*Q*(x(:, i) - xs) + (u(:, i) - us)'*R*(u(:, i) - us);
       end
       
-%       obj = obj + x(:,N)'*Qf*x(:,N);
-     
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,15 +87,14 @@ classdef MPC_Control_yaw < MPC_Control
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE       
       % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
+      
       u_limit = 0.2;
       
       con = [-u_limit <= us <= u_limit, xs == mpc.A*xs + mpc.B*us, ref == mpc.C*xs];
       obj = us^2;
       
-      
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      
       
       % Compute the steady-state target
       target_opt = optimizer(con, obj, sdpsettings('solver', 'gurobi'), ref, {xs, us});
