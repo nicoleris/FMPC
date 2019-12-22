@@ -20,7 +20,7 @@ classdef MPC_Control_yaw < MPC_Control
       us = sdpvar(m, 1);
       
       % SET THE HORIZON HERE
-      N = 40;
+      N = 20;
       
       % Predicted state and input trajectories
       x = sdpvar(n, N);
@@ -33,12 +33,14 @@ classdef MPC_Control_yaw < MPC_Control
       % NOTE: The matrices mpc.A, mpc.B, mpc.C and mpc.D are 
       %       the DISCRETE-TIME MODEL of your system
 
+      %CONSTRAINTS PARAMETERS
       My_max = 0.2;
       M = [1; -1]; m = [My_max; My_max];
       
       R = 1;
-      Q = 10*eye(n);
+      Q = diag([10,20]);
       
+      %LQR
       syst = LTISystem('A', mpc.A, 'B', mpc.B);
       syst.x.max = [inf; inf];
       syst.x.min = [-inf; -inf];
@@ -46,26 +48,26 @@ classdef MPC_Control_yaw < MPC_Control
       syst.u.penalty = QuadFunction(R);
       Qf = syst.LQRPenalty.weight;
       Gf = syst.LQRSet;
-      Mf = Gf.A;
-      mf = Gf.b;
+
       
-      % WRITE THE CONSTRAINTS AND OBJECTIVE HERE
+      %CONSTRAINTS AND OBJECTIVE
       con = [];
       obj = 0;
-      
+
       con = con + (x(:,2) == mpc.A*x(:,1) + mpc.B*u(:,1));
       con = con + (M*u(1, 1) <= m);
-      obj = obj + x(:, 1)'*Q*x(:, 1) + u(:, 1)'*R*u(:, 1);
+      obj = obj + x(:, 1)'*Q*x(:, 1) + u(:,1)'*R*u(:,1);
       
       for i = 2:N-1
           con = con + (x(:, i+1) == mpc.A*x(:, i) + mpc.B*u(:, i));
-          con = con + (M*u(:, i) <= m);
+          con = con + (M*u(1, i) <= m);
           obj = obj + x(:, i)'*Q*x(:, i) + u(:, i)'*R*u(:, i);
       end
       
       obj = obj + x(:,N)'*Qf*x(:,N);
+     
       
-      %PLOT
+      %PLOT OF INVARIANT SET
       figure;
       Gf.projection(1:2).plot();
       xlabel('$\dot{\gamma}$ [m/s]','interpreter','latex')
@@ -103,11 +105,9 @@ classdef MPC_Control_yaw < MPC_Control
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE       
       % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
-      u_limit = 0.2;
       
-      con = [-u_limit <= us <= u_limit, xs == mpc.A*xs + mpc.B*us, ref == mpc.C*xs];
-      obj = us^2;
-      
+      con = [];
+      obj = 0;
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

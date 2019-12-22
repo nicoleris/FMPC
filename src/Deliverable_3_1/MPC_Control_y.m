@@ -20,7 +20,7 @@ classdef MPC_Control_y < MPC_Control
       us = sdpvar(m, 1);
       
       % SET THE HORIZON HERE
-      N = 40;
+      N = 20;
       
       % Predicted state and input trajectories
       x = sdpvar(n, N);
@@ -33,14 +33,17 @@ classdef MPC_Control_y < MPC_Control
       % NOTE: The matrices mpc.A, mpc.B, mpc.C and mpc.D are 
       %       the DISCRETE-TIME MODEL of your system
 
+      %CONSTRAINTS PARAMETERS
       alpha_max = 0.035;
       Ma_max = 0.3;
       F = [1; -1]; f = [alpha_max; alpha_max];
       M = [1; -1]; m = [Ma_max; Ma_max];
       
-      R = 1;
-      Q = 10*eye(n);
+      R = 15;
+      Q = diag([10,10,10,10]);
+
       
+      %LQR
       syst = LTISystem('A', mpc.A, 'B', mpc.B);
       syst.x.max = [inf; alpha_max; inf; inf];
       syst.x.min = [-inf; -alpha_max; -inf; -inf];
@@ -51,13 +54,14 @@ classdef MPC_Control_y < MPC_Control
       Ff = Yf.A;
       ff = Yf.b;
       
-      % WRITE THE CONSTRAINTS AND OBJECTIVE HERE
+      
+      %CONSTRAINTS AND OBJECTIVE
       con = [];
       obj = 0;
-      
+
       con = con + (x(:,2) == mpc.A*x(:,1) + mpc.B*u(:,1));
       con = con + (M*u(1, 1) <= m);
-      obj = obj + x(:, 1)'*Q*x(:, 1) + u(:, 1)'*R*u(:, 1);
+      obj = obj + x(:, 1)'*Q*x(:, 1) + u(:,1)'*R*u(:,1);
       
       for i = 2:N-1
           con = con + (x(:, i+1) == mpc.A*x(:, i) + mpc.B*u(:, i));
@@ -66,9 +70,10 @@ classdef MPC_Control_y < MPC_Control
       end
       
       con = con + (Ff*x(:,N) <= ff);
-      obj = obj + x(:,N)'*Qf*x(:,N); 
+      obj = obj + x(:,N)'*Qf*x(:,N);
       
-      %PLOT
+      
+      %PLOT OF INVARIANT SET
       figure;
       
       subplot(3, 1, 1);
@@ -122,11 +127,9 @@ classdef MPC_Control_y < MPC_Control
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       % You can use the matrices mpc.A, mpc.B, mpc.C and mpc.D
-      u_limit = 0.3;
       
-      con = [-u_limit <= us <= u_limit, xs == mpc.A*xs + mpc.B*us, ref == mpc.C*xs];
-      obj = us^2;
-            
+      con = [];
+      obj = 0;
       
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

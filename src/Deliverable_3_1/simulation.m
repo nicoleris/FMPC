@@ -1,8 +1,5 @@
-function [sim] = simulation(Tf, Ts, sys, mpc, x0, ref)
+function [sim] = simulation(Tf, Ts, sys, mpc, x0)
 
-if nargin < 6
-    ref = 0;
-end
 
 T = ceil(Tf/Ts);
 N = length(x0);
@@ -12,7 +9,7 @@ x = zeros(N, T+1);
 x(:, 1) = x0;
 
 for i = 2:T+1
-    u = mpc.get_u(x(:, i-1), ref);
+    u = mpc.get_u(x(:, i-1));
     x(:, i) = mpc.A * x(:, i-1) + mpc.B * u;
 end
 
