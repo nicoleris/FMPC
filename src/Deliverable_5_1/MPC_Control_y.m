@@ -48,12 +48,12 @@ classdef MPC_Control_y < MPC_Control
       obj = 0;
 
       con = con + (x(:,2) == mpc.A*x(:,1) + mpc.B*u(:,1));
-      con = con + (M*u(1, 1) <= m);
+      con = con + (M*u(:, 1) <= m);
       obj = obj + (x(:, 1) - xs)'*Q*(x(:, 1) - xs) + (u(:,1) - us)'*R*(u(:,1) - us);
       
       for i = 2:N-1
           con = con + (x(:, i+1) == mpc.A*x(:, i) + mpc.B*u(:, i));
-          con = con + (F*x(2, i) <= f) + (M*u(1, i) <= m);
+          con = con + (F*x(2, i) <= f) + (M*u(:, i) <= m);
           obj = obj + (x(:, i) - xs)'*Q*(x(:, i) - xs) + (u(:, i) - us)'*R*(u(:, i) - us);
       end
       

@@ -54,29 +54,33 @@ classdef MPC_Control_z < MPC_Control
       
       R = 1;
       Q = diag([10,20]);
-      
-      
-      %LQR
-      syst = LTISystem('A', mpc.A, 'B', mpc.B);
-      syst.x.max = [inf; inf];
-      syst.x.min = [-inf; -inf];
-      syst.x.penalty = QuadFunction(Q);
-      syst.u.penalty = QuadFunction(R);
-      Qf = syst.LQRPenalty.weight;
-      Zf = syst.LQRSet;
 
+      [K, Qf, ~] = dlqr(mpc.A, mpc.B, Q, R);
+      K = -K;
+      
+      Zf = polytope(M*K, m);
+      Acl = [mpc.A + mpc.B*K];
+      while 1
+        prevZf = Zf;
+        [T,t] = double(Zf);
+        preXf = polytope(T*Acl,t);
+        Zf = intersect(Zf, preXf);
+        if isequal(prevZf, Zf)
+            break
+        end
+      end
 
       %CONSTRAINTS AND OBJECTIVE
       con = [];
       obj = 0;
 
       con = con + (x(:,2) == mpc.A*x(:,1) + mpc.B*u(:,1));
-      con = con + (M*u(1, 1) <= m);
+      con = con + (M*u(:, 1) <= m);
       obj = obj + (x(:, 1) - xs)'*Q*x(:, 1) + u(:,1)'*R*u(:,1);
       
       for i = 2:N-1
           con = con + (x(:, i+1) == mpc.A*x(:, i) + mpc.B*u(:, i));
-          con = con + (M*u(1, i) <= m);
+          con = con + (M*u(:, i) <= m);
           obj = obj + x(:, i)'*Q*x(:, i) + u(:, i)'*R*u(:, i);
       end
       

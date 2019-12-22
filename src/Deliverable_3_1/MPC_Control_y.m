@@ -36,23 +36,28 @@ classdef MPC_Control_y < MPC_Control
       %CONSTRAINTS PARAMETERS
       alpha_max = 0.035;
       Ma_max = 0.3;
-      F = [1; -1]; f = [alpha_max; alpha_max];
+      
       M = [1; -1]; m = [Ma_max; Ma_max];
+      F = [0 1 0 0 ; 0 -1 0 0 ]; f = [alpha_max; alpha_max];
       
       R = 15;
-      Q = diag([10,10,10,10]);
-
+      Q = diag([10,10,10,10]);      
       
-      %LQR
-      syst = LTISystem('A', mpc.A, 'B', mpc.B);
-      syst.x.max = [inf; alpha_max; inf; inf];
-      syst.x.min = [-inf; -alpha_max; -inf; -inf];
-      syst.x.penalty = QuadFunction(Q);
-      syst.u.penalty = QuadFunction(R);
-      Qf = syst.LQRPenalty.weight;
-      Yf = syst.LQRSet;
-      Ff = Yf.A;
-      ff = Yf.b;
+      [K, Qf, ~] = dlqr(mpc.A, mpc.B, Q, R);
+      K = -K;
+      
+      Yf = polytope([F; M*K], [f; m]);
+      Acl = [mpc.A + mpc.B*K];
+      while 1
+        prevYf = Yf;
+        [T,t] = double(Yf);
+        preXf = polytope(T*Acl,t);
+        Yf = intersect(Yf, preXf);
+        if isequal(prevYf, Yf)
+            break
+        end
+      end
+      [Ff,ff] = double(Yf);
       
       
       %CONSTRAINTS AND OBJECTIVE
@@ -60,17 +65,17 @@ classdef MPC_Control_y < MPC_Control
       obj = 0;
 
       con = con + (x(:,2) == mpc.A*x(:,1) + mpc.B*u(:,1));
-      con = con + (M*u(1, 1) <= m);
+      con = con + (M*u(:, 1) <= m);
       obj = obj + x(:, 1)'*Q*x(:, 1) + u(:,1)'*R*u(:,1);
       
       for i = 2:N-1
           con = con + (x(:, i+1) == mpc.A*x(:, i) + mpc.B*u(:, i));
-          con = con + (F*x(2, i) <= f) + (M*u(1, i) <= m);
+          con = con + (F*x(:, i) <= f) + (M*u(:, i) <= m);
           obj = obj + x(:, i)'*Q*x(:, i) + u(:, i)'*R*u(:, i);
       end
       
-      con = con + (Ff*x(:,N) <= ff);
-      obj = obj + x(:,N)'*Qf*x(:,N);
+      con = con + (Ff*(x(:,N) - xs) <= ff);
+      obj = obj + (x(:,N) - xs)'*Qf*(x(:,N) - xs);
       
       
       %PLOT OF INVARIANT SET
