@@ -42,8 +42,8 @@ classdef MPC_Control_yaw < MPC_Control
       
       %LQR
       syst = LTISystem('A', mpc.A, 'B', mpc.B);
-      syst.x.max = [inf; inf];
-      syst.x.min = [-inf; -inf];
+      syst.x.max = [inf; pi];
+      syst.x.min = [-inf; -pi];
       syst.x.penalty = QuadFunction(Q);
       syst.u.penalty = QuadFunction(R);
       Qf = syst.LQRPenalty.weight;
