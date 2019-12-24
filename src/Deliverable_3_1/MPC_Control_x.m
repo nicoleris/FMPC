@@ -38,7 +38,6 @@ classdef MPC_Control_x < MPC_Control
       beta_max = 0.035;
       Mb_max = 0.3;
       
-%       F = [1; -1]; f = [beta_max; beta_max];
       M = [1; -1]; m = [Mb_max; Mb_max];
       F = [0 1 0 0 ; 0 -1 0 0 ]; f = [beta_max; beta_max];
       
