@@ -1,5 +1,5 @@
 function [sim] = simulation(Tf, Ts, sys, mpc, x0, ref)
-
+%% Compute simulation
 if nargin < 6
     ref = 0;
 end
@@ -18,6 +18,8 @@ end
 
 sim.t = t;
 sim.x = x;
+
+%% Plot the results
 
 if N == 2
     if sys.StateName{1} == "vel_z"

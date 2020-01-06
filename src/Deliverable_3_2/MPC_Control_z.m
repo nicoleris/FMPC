@@ -70,7 +70,6 @@ classdef MPC_Control_z < MPC_Control
           obj = obj + (x(:, i) - xs)'*Q*(x(:, i) - xs) + (u(:, i) - us)'*R*(u(:, i) - us);
       end
       
-
       % YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE YOUR CODE HERE 
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       

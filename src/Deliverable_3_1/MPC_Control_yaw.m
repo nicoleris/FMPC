@@ -44,7 +44,7 @@ classdef MPC_Control_yaw < MPC_Control
       K = -K;
       
       Gf = polytope(M*K, m);
-      Acl = [mpc.A + mpc.B*K];
+      Acl = mpc.A + mpc.B*K;
       while 1
         prevGf = Gf;
         [T,t] = double(Gf);

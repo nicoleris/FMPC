@@ -59,7 +59,7 @@ classdef MPC_Control_z < MPC_Control
       K = -K;
       
       Zf = polytope(M*K, m);
-      Acl = [mpc.A + mpc.B*K];
+      Acl = mpc.A + mpc.B*K;
       while 1
         prevZf = Zf;
         [T,t] = double(Zf);
@@ -76,7 +76,7 @@ classdef MPC_Control_z < MPC_Control
 
       con = con + (x(:,2) == mpc.A*x(:,1) + mpc.B*u(:,1));
       con = con + (M*u(:, 1) <= m);
-      obj = obj + (x(:, 1) - xs)'*Q*x(:, 1) + u(:,1)'*R*u(:,1);
+      obj = obj + x(:, 1)'*Q*x(:, 1) + u(:,1)'*R*u(:,1);
       
       for i = 2:N-1
           con = con + (x(:, i+1) == mpc.A*x(:, i) + mpc.B*u(:, i));
