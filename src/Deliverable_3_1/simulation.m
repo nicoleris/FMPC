@@ -1,5 +1,5 @@
 function [sim] = simulation(Tf, Ts, sys, mpc, x0)
-
+%% Compute simulation
 
 T = ceil(Tf/Ts);
 N = length(x0);
@@ -15,6 +15,8 @@ end
 
 sim.t = t;
 sim.x = x;
+
+%% Plot the results
 
 if N == 2
     if sys.StateName{1} == "vel_z"

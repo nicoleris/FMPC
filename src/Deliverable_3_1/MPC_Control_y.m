@@ -47,7 +47,7 @@ classdef MPC_Control_y < MPC_Control
       K = -K;
       
       Yf = polytope([F; M*K], [f; m]);
-      Acl = [mpc.A + mpc.B*K];
+      Acl = mpc.A + mpc.B*K;
       while 1
         prevYf = Yf;
         [T,t] = double(Yf);
@@ -74,8 +74,8 @@ classdef MPC_Control_y < MPC_Control
           obj = obj + x(:, i)'*Q*x(:, i) + u(:, i)'*R*u(:, i);
       end
       
-      con = con + (Ff*(x(:,N) - xs) <= ff);
-      obj = obj + (x(:,N) - xs)'*Qf*(x(:,N) - xs);
+      con = con + (Ff*x(:,N) <= ff);
+      obj = obj + x(:,N)'*Qf*x(:,N);
       
       
       %PLOT OF INVARIANT SET

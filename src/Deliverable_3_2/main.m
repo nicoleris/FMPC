@@ -11,9 +11,8 @@ sys = quad.linearize(xs, us);
 % Design MPC controller
 mpc_x = MPC_Control_x(sys_x, Ts);
 mpc_y = MPC_Control_y(sys_y,Ts);
-mpc_yaw = MPC_Control_yaw(sys_yaw,Ts);
 mpc_z = MPC_Control_z(sys_z,Ts);
-
+mpc_yaw = MPC_Control_yaw(sys_yaw,Ts);
 
 %%  
 
